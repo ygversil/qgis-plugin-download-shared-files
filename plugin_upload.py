@@ -8,6 +8,7 @@
 import sys
 import getpass
 import xmlrpc.client
+from future import standard_library
 from optparse import OptionParser
 
 standard_library.install_aliases()
@@ -26,7 +27,8 @@ def main(parameters, arguments):
     :param parameters: Command line parameters.
     :param arguments: Command line arguments.
     """
-    address = "{protocol}://{username}:{password}@{server}:{port}{endpoint}".format(
+    address = ("{protocol}://{username}:{password}@"
+               "{server}:{port}{endpoint}").format(
         protocol=PROTOCOL,
         username=parameters.username,
         password=parameters.password,
