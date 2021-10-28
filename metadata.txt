@@ -6,7 +6,7 @@
 name=Download Shared Files
 qgisMinimumVersion=3.16
 description=This plugin provides a processing algorithm to download files hosted on one or multiple web repositories.
-version=0.1
+version=0.1.0-dev1
 author=Yann Voté
 email=ygversil@lilo.org
 
