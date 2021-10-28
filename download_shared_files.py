@@ -97,7 +97,6 @@ class DownloadSharedFilesPlugin(object):
                         duration=0
                     )
 
-
     def initProcessing(self):
         """Init Processing provider for QGIS >= 3.8."""
         self.provider = DownloadSharedFilesProvider()
