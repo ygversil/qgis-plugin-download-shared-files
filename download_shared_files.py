@@ -85,9 +85,10 @@ class DownloadSharedFilesPlugin(object):
                     remote_version = 0
                 if local_version < remote_version:
                     log_message(
-                        '{} repository: shared files have been added or '
-                        'updated. Please run the Download Shared Files '
-                        'algorithm.'.format(repo_title),
+                        'Shared files have been added or updated in '
+                        'repository. Please run the Download Shared Files '
+                        'algorithm.',
+                        title=repo_title,
                         level='Info',
                         duration=0
                     )

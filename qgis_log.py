@@ -48,8 +48,8 @@ def log_exception(err, level='Warning', message_bar=False, iface=None,
     log_message(traceback.format_exc(), level=level)
 
 
-def log_message(msg, level='Info', message_bar=False, iface=None,
-                duration=5):
+def log_message(msg, title='Shared Files', level='Info', message_bar=False,
+                iface=None, duration=5):
     """Output the given message in QGIS logs using the given level.
 
     If ``message_bar`` is ``True``, then ``iface`` must reference a valid
@@ -57,8 +57,8 @@ def log_message(msg, level='Info', message_bar=False, iface=None,
     bar in QGIS interface.
     """
     level = getattr(Qgis, level)
-    QgsMessageLog.logMessage(msg, 'ANA - CEN Ariège', level=level)
+    QgsMessageLog.logMessage(msg, title, level=level)
     if message_bar:
         assert iface is not None
-        iface.messageBar().pushMessage('ANA - CEN Ariège', msg,
-                                       level=level, duration=duration)
+        iface.messageBar().pushMessage(title, msg, level=level,
+                                       duration=duration)
