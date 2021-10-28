@@ -31,14 +31,21 @@ __copyright__ = '(C) 2021 by Yann Voté'
 
 __revision__ = '$Format:%H$'
 
+from urllib.error import URLError
+from urllib.parse import urljoin
+from urllib.request import urlopen
 import os
 import sys
 import inspect
 
 from PyQt5.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from qgis.core import QgsApplication
+from yaml import SafeLoader, load as load_yaml
+from .config_tools import SETTINGS_GROUP, read_repository_settings
+from .context_managers import qgis_group_settings
 from .resources import *  # noqa
 from .download_shared_files_provider import DownloadSharedFilesProvider
+from .qgis_log import log_message
 
 cmd_folder = os.path.split(inspect.getfile(inspect.currentframe()))[0]
 
@@ -62,6 +69,29 @@ class DownloadSharedFilesPlugin(object):
             self.translator.load(locale_path)
             if qVersion() > '4.3.3':
                 QCoreApplication.installTranslator(self.translator)
+        # Check for repository updates
+        with qgis_group_settings(SETTINGS_GROUP) as s:
+            for repo_title in s.childGroups():
+                local_version = int(s.value('files_version', '0'))
+                repo_settings = read_repository_settings(repo_title)
+                try:
+                    with urlopen(urljoin(repo_settings.url, 'reffiles2.yml')) \
+                            as remote_f:
+                        remote_version = int(
+                            load_yaml(remote_f.read(),
+                                      Loader=SafeLoader)['version']
+                        )
+                except URLError:
+                    remote_version = 0
+                if local_version < remote_version:
+                    log_message(
+                        '{} repository: shared files have been added or '
+                        'updated. Please run the Download Shared Files '
+                        'algorithm.'.format(repo_title),
+                        level='Info',
+                        duration=0
+                    )
+
 
     def initProcessing(self):
         """Init Processing provider for QGIS >= 3.8."""
