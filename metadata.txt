@@ -1,0 +1,47 @@
+# This file contains metadata for your plugin.
+
+# This file should be included when you package your plugin.# Mandatory items:
+
+[general]
+name=Download Shared Files
+qgisMinimumVersion=3.16
+description=This plugin provides a processing algorithm to download files hosted on one or multiple web repositories.
+version=0.1
+author=Yann Voté
+email=ygversil@lilo.org
+
+about=This plugin provides a processing algorithm to download shared files from one or multiple web repositories. For example, if a company IT wants to share common GIS files (aerial photos, digital elevation model, cities polygons, ...) with his colleagues so that they can work offline, she can upload those files onto an internal web server. Then, provided that the plugin has been configured to read this web server, each coworker will be able to download the files by just running the algorithm. The plugin also notifies the user at QGIS startup when new files have been added or files have been updated. And finally, when all files have been downloaded, an HTML report is generated that shows what have been done.
+
+tracker=http://github.com/ygversil/qgis-plugin-download-shared-files/issues
+repository=http://github.com/ygversil/qgis-plugin-download-shared-files
+# End of mandatory metadata
+
+# Recommended items:
+
+hasProcessingProvider=yes
+# Uncomment the following line and add your changelog:
+# changelog=
+
+# Tags are comma separated with spaces allowed
+tags=qgis, python, processing, import
+
+homepage=http://github.com/ygversil/qgis-plugin-download-shared-files
+category=Analysis
+icon=icon.png
+# experimental flag
+experimental=True
+
+# deprecated flag (applies to the whole plugin, not just a single version)
+deprecated=False
+
+# Since QGIS 3.8, a comma separated list of plugins to be installed
+# (or upgraded) can be specified.
+# Check the documentation for more information.
+# plugin_dependencies=
+
+Category of the plugin: Raster, Vector, Database or Web
+# category=
+
+# If the plugin can run on QGIS Server.
+server=False
+
