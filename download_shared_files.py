@@ -37,6 +37,7 @@ import inspect
 
 from PyQt5.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from qgis.core import QgsApplication
+from .resources import *  # noqa
 from .download_shared_files_provider import DownloadSharedFilesProvider
 
 cmd_folder = os.path.split(inspect.getfile(inspect.currentframe()))[0]
