@@ -25,7 +25,7 @@
 <context>
     <name>DownloadSharedFilesProvider</name>
     <message>
-        <location filename="../download_shared_files_provider.py" line="76"/>
+        <location filename="../download_shared_files_provider.py" line="77"/>
         <source>Download Shared Files</source>
         <translation type="unfinished"></translation>
     </message>
