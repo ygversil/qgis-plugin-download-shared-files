@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 /***************************************************************************
  DownloadSharedFiles
@@ -31,135 +29,281 @@ __copyright__ = '(C) 2021 by Yann Voté'
 
 __revision__ = '$Format:%H$'
 
-from qgis.PyQt.QtCore import QCoreApplication
-from qgis.core import (QgsProcessing,
-                       QgsFeatureSink,
-                       QgsProcessingAlgorithm,
-                       QgsProcessingParameterFeatureSource,
-                       QgsProcessingParameterFeatureSink)
+
+from collections import namedtuple
+from datetime import datetime
+from urllib.parse import urljoin
+from urllib.request import urlopen
+import re
+import pathlib
+
+from PyQt5.QtGui import QIcon
+from processing import run as run_alg
+from processing.algs.qgis.QgisAlgorithm import QgisAlgorithm
+from qgis.core import (QgsApplication,
+                       QgsProcessingException,
+                       QgsProcessingMultiStepFeedback,
+                       QgsProcessingParameterFileDestination)
+from yaml import SafeLoader, load as load_yaml
+
+from .config_tools import read_gis_data_home
+from .context_managers import QgisStepManager, qgis_group_settings
+from .path_tools import (
+    is_absolute_file_path,
+    is_absolute_folder_path,
+    sha1sum,
+)
 
 
-class DownloadSharedFilesAlgorithm(QgsProcessingAlgorithm):
-    """
-    This is an example algorithm that takes a vector layer and
-    creates a new identical one.
+BLOCKSIZE = 65536
+GISDATAHOME_PREFIX_RE = re.compile(r'^:gisdatahome:(\/)*')
+PROFILE_PREFIX_RE = re.compile(r'^:profile:(\/)*')
+REPO_URL = 'http://repo.priv.ariegenature.fr/ref/'
+SETTINGS_GROUP = 'Plugin-AnaDatabaseExtract/reffiles'
 
-    It is meant to be used as an example of how to create your own
-    algorithms and explain methods and variables used to do it. An
-    algorithm like this will be available in all elements, and there
-    is not need for additional work.
 
-    All Processing algorithms should extend the QgsProcessingAlgorithm
-    class.
-    """
+DownloadableFile = namedtuple(
+    'DownloadableFile',
+    (
+        'name',
+        'version',
+        'sha1sum',
+        'dest_folder',
+        'whats_new',
+    )
+)
 
-    # Constants used to refer to parameters and outputs. They will be
-    # used when calling the algorithm from another algorithm, or when
-    # calling from the QGIS console.
 
-    OUTPUT = 'OUTPUT'
-    INPUT = 'INPUT'
+class DownloadSharedFilesAlgorithm(QgisAlgorithm):
+    """QGIS Processing algorithm to download shared files from a web
+    repository."""
 
-    def initAlgorithm(self, config):
-        """
-        Here we define the inputs and output of the algorithm, along
-        with some other properties.
-        """
-
-        # We add the input vector features source. It can have any kind of
-        # geometry.
-        self.addParameter(
-            QgsProcessingParameterFeatureSource(
-                self.INPUT,
-                self.tr('Input layer'),
-                [QgsProcessing.TypeVectorAnyGeometry]
-            )
-        )
-
-        # We add a feature sink in which to store our processed features (this
-        # usually takes the form of a newly created vector layer when the
-        # algorithm is run in QGIS).
-        self.addParameter(
-            QgsProcessingParameterFeatureSink(
-                self.OUTPUT,
-                self.tr('Output layer')
-            )
-        )
-
-    def processAlgorithm(self, parameters, context, feedback):
-        """
-        Here is where the processing itself takes place.
-        """
-
-        # Retrieve the feature source and sink. The 'dest_id' variable is used
-        # to uniquely identify the feature sink, and must be included in the
-        # dictionary returned by the processAlgorithm function.
-        source = self.parameterAsSource(parameters, self.INPUT, context)
-        (sink, dest_id) = self.parameterAsSink(
-            parameters, self.OUTPUT, context, source.fields(),
-            source.wkbType(), source.sourceCrs()
-        )
-
-        # Compute the number of steps to display within the progress bar and
-        # get features from source
-        total = 100.0 / source.featureCount() if source.featureCount() else 0
-        features = source.getFeatures()
-
-        for current, feature in enumerate(features):
-            # Stop the algorithm if cancel button has been clicked
-            if feedback.isCanceled():
-                break
-
-            # Add a feature in the sink
-            sink.addFeature(feature, QgsFeatureSink.FastInsert)
-
-            # Update the progress bar
-            feedback.setProgress(int(current * total))
-
-        # Return the results of the algorithm. In this case our only result is
-        # the feature sink which contains the processed features, but some
-        # algorithms may return multiple feature sinks, calculated numeric
-        # statistics, etc. These should all be included in the returned
-        # dictionary, with keys matching the feature corresponding parameter
-        # or output names.
-        return {self.OUTPUT: dest_id}
+    OUTPUT_HTML_FILE = 'OUTPUT_HTML_FILE'
 
     def name(self):
-        """
-        Returns the algorithm name, used for identifying the algorithm. This
-        string should be fixed for the algorithm, and must not be localised.
-        The name should be unique within each provider. Names should contain
-        lowercase alphanumeric characters only and no spaces or other
-        formatting characters.
-        """
-        return 'Download Shared Files'
+        """Algorithm identifier."""
+        return 'downloadsharedfiles'
 
     def displayName(self):
-        """
-        Returns the translated algorithm name, which should be used for any
-        user-visible display of the algorithm name.
-        """
-        return self.tr(self.name())
-
-    def group(self):
-        """
-        Returns the name of the group this algorithm belongs to. This string
-        should be localised.
-        """
-        return self.tr(self.groupId())
+        """Algorithm human name."""
+        return self.tr('Download shared files')
 
     def groupId(self):
-        """
-        Returns the unique ID of the group this algorithm belongs to. This
-        string should be fixed for the algorithm, and must not be localised.
-        The group id should be unique within each provider. Group id should
-        contain lowercase alphanumeric characters only and no spaces or other
-        formatting characters.
-        """
-        return 'File Tools'
+        """Algorithm group identifier."""
+        return 'filetools'
 
-    def tr(self, string):
-        return QCoreApplication.translate('Processing', string)
+    def group(self):
+        """Algorithm group human name."""
+        return self.tr('File tools')
 
-    def createInstance(self):
-        return DownloadSharedFilesAlgorithm()
+    def shortHelpString(self):
+        """Algorithm help message displayed in the right panel."""
+        return self.tr(
+            "This algorithm downloads GIS shared files from given web "
+            "repository. Only files that have been added or updated on the "
+            "repository are downloaded. Existing files will replaced by the "
+            "new version on local hard drive.\n\n"
+            "After successful download, an HTML report is generated showing "
+            "what files have been downloaded."
+        )
+
+    def icon(self):
+        """Algorithm's icon."""
+        return QIcon(':/plugins/download_shared_files/'
+                     'download_shared_files.png')
+
+    def initAlgorithm(self, config):
+        """Initialize algorithm with inputs and output parameters."""
+        self.gis_data_home = read_gis_data_home()
+        self.addParameter(
+            QgsProcessingParameterFileDestination(
+                self.OUTPUT_HTML_FILE,
+                self.tr('Download report'),
+                self.tr('HTML files (*.html)'),
+                None,
+                True)
+        )
+        self.version = None
+
+    def processAlgorithm(self, parameters, context, feedback):
+        """Actual processing steps."""
+        if not self.gis_data_home:
+            raise QgsProcessingException(self.tr(
+                'gis_data_home not found. You have to set gis_data_home '
+                'global variable to the path of your main GIS folder (in '
+                'Preferences -> Settings dialog, Variables tab).'
+            ))
+        output_file = self.parameterAsFileOutput(parameters,
+                                                 self.OUTPUT_HTML_FILE,
+                                                 context)
+        files_to_download = [
+            downloadable_file
+            for downloadable_file in self._downloadable_files()
+            if self._is_file_to_download(downloadable_file, feedback)
+        ]
+        step_count = len(files_to_download)
+        multi_feedback = QgsProcessingMultiStepFeedback(step_count, feedback)
+        self.run_next_step = QgisStepManager(
+            multi_feedback,
+            abort_message=self.tr('Aborting on user request')
+        )
+        # Download each file
+        outputs = dict()
+        results = dict()
+        for i, downloadable_file in enumerate(files_to_download):
+            dest_folder = self._resolve_dest_folder(downloadable_file)
+            if not is_absolute_folder_path(dest_folder):
+                dest_folder.mkdir(mode=0o755)
+            file_name = downloadable_file.name
+            file_path = dest_folder / file_name
+            version_file_path = dest_folder / '{}.ver'.format(file_name)
+            with self.run_next_step:
+                multi_feedback.pushConsoleInfo(self.tr(
+                    'Downloading file {}...'.format(file_name)
+                ))
+                alg_params = {
+                    'URL': urljoin(REPO_URL, file_name),
+                    'OUTPUT': file_path.as_posix(),
+                }
+                try:
+                    outputs[file_name] = run_alg(
+                        'native:filedownloader',
+                        alg_params,
+                        context=context,
+                        feedback=multi_feedback,
+                        is_child_algorithm=True
+                    )
+                except QgsProcessingException:
+                    feedback.reportError(self.tr(
+                        'Unable to download file '
+                        '{fname}'.format(fname=file_name)
+                    ))
+                    continue
+                multi_feedback.pushConsoleInfo(self.tr(
+                    'Download complete for file {}. Now checking file '
+                    'integrity'.format(file_name)
+                ))
+                if sha1sum(file_path, BLOCKSIZE) != downloadable_file.sha1sum:
+                    raise QgsProcessingException(self.tr(
+                        'SHA1 checksum of downloaded file does not match '
+                        'expected one. Something went wrong during download '
+                        'of file {}. Please try again.'.format(file_name)
+                    ))
+                with version_file_path.open('w', encoding='UTF-8') as f:
+                    f.write(str(downloadable_file.version))
+                multi_feedback.pushConsoleInfo(self.tr(
+                    'File {} sucessfully downloaded.'.format(file_name)
+                ))
+                multi_feedback.setProgressText(self.tr(
+                    'File {i} of {count} successfully '
+                    'downloaded.'.format(i=i, count=step_count)
+                ))
+                results[file_name] = outputs[file_name]['OUTPUT']
+        if self.version:
+            with qgis_group_settings(SETTINGS_GROUP) as s:
+                s.setValue('version', self.version)
+        if output_file:
+            self._create_download_report(output_file, files_to_download)
+            results[self.OUTPUT_HTML_FILE] = output_file
+        return results
+
+    def _create_download_report(self, output_html_path, downloaded_files):
+        """Create the given HTML file which a report of what file were
+        downloaded."""
+        ts = datetime.now()
+        generated_date = ts.strftime('%a %d %b %Y')
+        generated_time = ts.strftime('%H h %M')
+        if not downloaded_files:
+            tmpl_content = self.tr('<p>All files are up-to-date. '
+                                   'No files downloaded</p>')
+        else:
+            tmpl_content = (
+                '<ul>\n'
+                '{}\n'
+                '</ul>\n'.format('\n'.join(
+                    '<li>{}</li>'.format(
+                        self.tr(
+                            '<p>{fname} (version: {version})</p>\n'
+                            '<p><strong>Release notes</strong>. '
+                            '{new}</p>'.format(
+                                fname=downloaded_file.name,
+                                version=downloaded_file.version,
+                                new=downloaded_file.whats_new,
+                            )
+                        )
+                    )
+                    for downloaded_file in downloaded_files
+                ))
+            )
+        tmpl_path = pathlib.Path(__file__).parent / 'download_report.html'
+        output_path = pathlib.Path(output_html_path)
+        with tmpl_path.open(encoding='utf-8') as tmpl, \
+                output_path.open('w', encoding='utf-8') as f:
+            f.write(tmpl.read().format(
+                report_title=self.tr('Download report'),
+                section_title=self.tr('Downloaded files'),
+                generated_date=generated_date,
+                generated_time=generated_time,
+                content=tmpl_content
+            ))
+
+    def _downloadable_files(self):
+        """Download ``reffiles.yml`` from Ana repository and yield each file
+        description found there as a ``DownloadbleFile`` instance."""
+        with urlopen(urljoin(REPO_URL, 'reffiles2.yml')) as remote_f:
+            d = load_yaml(remote_f.read(), Loader=SafeLoader)
+            self.version = int(d['version'])
+            downloadable_files = d['files']
+        for downloadable_file in downloadable_files:
+            yield DownloadableFile(**downloadable_file)
+
+    def _is_file_to_download(self, downloadable_file, feedback):
+        """Return ``True`` if the given ``DownloadableFile`` instance needs to
+        be downloaded again."""
+        dest_folder = self._resolve_dest_folder(downloadable_file)
+        file_name = downloadable_file.name
+        version_file_path = dest_folder / '{}.ver'.format(file_name)
+        local_version = '0'
+        if is_absolute_file_path(version_file_path):
+            with version_file_path.open(encoding='utf-8') as f:
+                try:
+                    local_version = f.readline().strip()
+                except Exception:
+                    feedback.pushConsoleInfo(self.tr(
+                        'Unable to read version file for {}. Download '
+                        'it again.'.format(file_name)
+                    ))
+        if local_version >= str(downloadable_file.version):
+            feedback.pushConsoleInfo(self.tr(
+                'File {} up-to-date. Nothing to do.'.format(file_name)
+            ))
+            return False
+        else:
+            return True
+
+    def _resolve_dest_folder(self, downloadable_file):
+        """Return a ``Path`` object matching the ``dest`_folder`` attribute
+        of the given ``DownloadableFile`` instance."""
+        dest_folder = downloadable_file.dest_folder.strip()
+        if dest_folder.startswith(':gisdatahome:'):
+            p = self.gis_data_home / GISDATAHOME_PREFIX_RE.sub('', dest_folder)
+        elif dest_folder.startswith(':profile:'):
+            profile_path = pathlib.Path(QgsApplication.instance().
+                                        qgisSettingsDirPath())
+            p = profile_path / PROFILE_PREFIX_RE.sub('', dest_folder)
+        else:  # Else, assume it is a path relative to gis_data_home
+            p = pathlib.Path(dest_folder)
+            if not p:
+                raise QgsProcessingException(self.tr(
+                    'dest_folder empty or not set for file {}.'.format(
+                        downloadable_file.name
+                    )
+                ))
+            if p.is_absolute():
+                raise QgsProcessingException(self.tr(
+                    'dest_folder cannot be an absolute path for {}.'.format(
+                        downloadable_file.name
+                    )
+                ))
+            p = self.gis_data_home / p
+        return p

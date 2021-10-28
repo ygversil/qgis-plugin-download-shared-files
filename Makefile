@@ -45,9 +45,13 @@ PLUGINNAME = download_shared_files
 
 PY_FILES = \
 	__init__.py \
+	config_tools.py \
+	context_managers.py \
 	download_shared_files.py \
 	download_shared_files_algorithm.py \
-	download_shared_files_provider.py
+	download_shared_files_provider.py \
+	path_tools.py \
+	qgis_log.py
 
 EXTRAS = metadata.txt
 
