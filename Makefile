@@ -45,7 +45,9 @@ PLUGINNAME = download_shared_files
 
 PY_FILES = \
 	__init__.py \
-	download_shared_files.py
+	download_shared_files.py \
+	download_shared_files_algorithm.py \
+	download_shared_files_provider.py
 
 UI_FILES =
 
