@@ -37,4 +37,4 @@ def classFactory(iface):  # pylint: disable=invalid-name
     """
     #
     from .download_shared_files import DownloadSharedFilesPlugin
-    return DownloadSharedFilesPlugin()
+    return DownloadSharedFilesPlugin(iface)

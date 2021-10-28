@@ -55,7 +55,7 @@ if cmd_folder not in sys.path:
 
 class DownloadSharedFilesPlugin(object):
 
-    def __init__(self):
+    def __init__(self, iface):
         self.provider = None
         # initialize locale
         locale = QSettings().value('locale/userLocale')[0:2]
@@ -90,6 +90,8 @@ class DownloadSharedFilesPlugin(object):
                         'algorithm.',
                         title=repo_title,
                         level='Info',
+                        message_bar=True,
+                        iface=iface,
                         duration=0
                     )
 
