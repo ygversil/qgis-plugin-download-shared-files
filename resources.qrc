@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/download_shared_files">
+        <file alias="download_shared_files.png">icons/download_shared_files.png</file>
+    </qresource>
+</RCC>

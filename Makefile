@@ -51,9 +51,9 @@ PY_FILES = \
 
 EXTRAS = metadata.txt
 
-EXTRA_DIRS = i18n
+EXTRA_DIRS = i18n icons
 
-COMPILED_RESOURCE_FILES =
+COMPILED_RESOURCE_FILES = resources.py
 
 PEP8EXCLUDE=pydev,resources.py,conf.py,third_party,ui
 
