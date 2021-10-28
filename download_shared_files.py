@@ -85,16 +85,17 @@ class DownloadSharedFilesPlugin(object):
                     remote_version = 0
                 if local_version < remote_version:
                     log_message(
-                        'Shared files have been added or updated in '
-                        'repository. Please run the Download Shared Files '
-                        'algorithm.',
+                        self.tr(
+                            'Files have been added or updated in this '
+                            'repository. Please run the Download Shared Files '
+                            'algorithm.'
+                        ),
                         title=repo_title,
                         level='Info',
                         message_bar=True,
                         iface=iface,
                         duration=0
                     )
-
 
     def initProcessing(self):
         """Init Processing provider for QGIS >= 3.8."""
@@ -103,6 +104,9 @@ class DownloadSharedFilesPlugin(object):
 
     def initGui(self):
         self.initProcessing()
+
+    def tr(self, message):
+        return QCoreApplication.translate('DownloadSharedFilesPlugin', message)
 
     def unload(self):
         QgsApplication.processingRegistry().removeProvider(self.provider)
