@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Download Report</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.2/css/bulma.min.css">
+    <link rel="shortcut icon" href="icons/download_shared_files.png" />
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+  </head>
+  <body>
+    <header>
+      <navbar>
+      <div class="container">
+        <img src="icons/download_shared_files.png" style="height:56px; width:130px;"/>
+      </div>
+      </navbar>
+    </header>
+    <section class="section">
+      <div class="container">
+        <h1 class="title is-1">{report_title}</h1>
+        <p class="subtitle is-3">QGIS plugin <strong>Download Shared Files</strong></p>
+        <div class="content">
+          Generated on {generated_date} at {generated_time}.
+        </div>
+        <h2 class="title is-2">{section_title}</h2>
+        <div class="content">
+          {content}
+        </div>
+      </div>
+    </section>
+    <footer class="footer">
+      <div class="content has-text-centered">
+        <p>
+        <strong>Download Shared Files</strong>: a QGIS plugin made by <a href="mailto:ygversil@lilo.org">Yann Voté</a>. Source code under the
+        <a href="https://opensource.org/licenses/GPL-2.0">GPLv2</a> license.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

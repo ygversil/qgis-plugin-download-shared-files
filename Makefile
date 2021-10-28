@@ -51,7 +51,7 @@ PY_FILES = \
 
 EXTRAS = metadata.txt
 
-EXTRA_DIRS = i18n icons
+EXTRA_DIRS = i18n icons report_templates
 
 COMPILED_RESOURCE_FILES = resources.py
 
