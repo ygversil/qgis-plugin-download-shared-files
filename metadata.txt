@@ -27,7 +27,7 @@ tags=qgis, python, processing, import
 
 homepage=http://github.com/ygversil/qgis-plugin-download-shared-files
 category=Analysis
-icon=icon.png
+icon=icons/download_shared_files.png
 # experimental flag
 experimental=True
 

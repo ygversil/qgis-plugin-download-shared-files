@@ -31,6 +31,7 @@ __copyright__ = '(C) 2021 by Yann Voté'
 
 __revision__ = '$Format:%H$'
 
+from PyQt5.QtGui import QIcon
 from qgis.core import QgsProcessingProvider
 from .download_shared_files_algorithm import DownloadSharedFilesAlgorithm
 
@@ -80,7 +81,8 @@ class DownloadSharedFilesProvider(QgsProcessingProvider):
         Should return a QIcon which is used for your provider inside
         the Processing toolbox.
         """
-        return QgsProcessingProvider.icon(self)
+        return QIcon(':/plugins/download_shared_files/'
+                     'download_shared_files.png')
 
     def longName(self):
         """
