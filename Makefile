@@ -51,7 +51,7 @@ PY_FILES = \
 
 EXTRAS = metadata.txt
 
-EXTRA_DIRS =
+EXTRA_DIRS = i18n
 
 COMPILED_RESOURCE_FILES =
 
