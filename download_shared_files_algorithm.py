@@ -43,23 +43,28 @@ from processing.algs.qgis.QgisAlgorithm import QgisAlgorithm
 from qgis.core import (QgsApplication,
                        QgsProcessingException,
                        QgsProcessingMultiStepFeedback,
+                       QgsProcessingParameterEnum,
                        QgsProcessingParameterFileDestination)
 from yaml import SafeLoader, load as load_yaml
 
-from .config_tools import read_gis_data_home
+from .config_tools import (
+    SETTINGS_GROUP,
+    read_gis_data_home,
+    read_repository_settings,
+)
 from .context_managers import QgisStepManager, qgis_group_settings
 from .path_tools import (
     is_absolute_file_path,
     is_absolute_folder_path,
     sha1sum,
 )
+from .qgis_log import log_message
 
 
 BLOCKSIZE = 65536
 GISDATAHOME_PREFIX_RE = re.compile(r'^:gisdatahome:(\/)*')
 PROFILE_PREFIX_RE = re.compile(r'^:profile:(\/)*')
 REPO_URL = 'http://repo.priv.ariegenature.fr/ref/'
-SETTINGS_GROUP = 'Plugin-AnaDatabaseExtract/reffiles'
 
 
 DownloadableFile = namedtuple(
@@ -78,6 +83,7 @@ class DownloadSharedFilesAlgorithm(QgisAlgorithm):
     """QGIS Processing algorithm to download shared files from a web
     repository."""
 
+    REPO_TITLE = 'REPO_TITLE'
     OUTPUT_HTML_FILE = 'OUTPUT_HTML_FILE'
 
     def name(self):
@@ -115,6 +121,18 @@ class DownloadSharedFilesAlgorithm(QgisAlgorithm):
     def initAlgorithm(self, config):
         """Initialize algorithm with inputs and output parameters."""
         self.gis_data_home = read_gis_data_home()
+        with qgis_group_settings(SETTINGS_GROUP) as s:
+            self.repo_titles = s.childGroups()
+            if not self.repo_titles:
+                log_message(self.tr('No repository configured'),
+                            level='Warning', duration=5)
+        self.addParameter(
+            QgsProcessingParameterEnum(
+                self.REPO_TITLE,
+                self.tr('Repository'),
+                options=self.repo_titles,
+            )
+        )
         self.addParameter(
             QgsProcessingParameterFileDestination(
                 self.OUTPUT_HTML_FILE,
@@ -133,6 +151,10 @@ class DownloadSharedFilesAlgorithm(QgisAlgorithm):
                 'global variable to the path of your main GIS folder (in '
                 'Preferences -> Settings dialog, Variables tab).'
             ))
+        repo_idx = self.parameterAsEnum(parameters, self.REPO_TITLE, context)
+        repo_title = self.repo_titles[repo_idx]
+        repo_settings = read_repository_settings(repo_title)
+        repo_url = repo_settings.url
         output_file = self.parameterAsFileOutput(parameters,
                                                  self.OUTPUT_HTML_FILE,
                                                  context)
@@ -162,7 +184,7 @@ class DownloadSharedFilesAlgorithm(QgisAlgorithm):
                     'Downloading file {}...'.format(file_name)
                 ))
                 alg_params = {
-                    'URL': urljoin(REPO_URL, file_name),
+                    'URL': urljoin(repo_url, file_name),
                     'OUTPUT': file_path.as_posix(),
                 }
                 try:
@@ -201,7 +223,7 @@ class DownloadSharedFilesAlgorithm(QgisAlgorithm):
                 results[file_name] = outputs[file_name]['OUTPUT']
         if self.version:
             with qgis_group_settings(SETTINGS_GROUP) as s:
-                s.setValue('version', self.version)
+                s.setValue('{}/files_version'.format(repo_title), self.version)
         if output_file:
             self._create_download_report(output_file, files_to_download)
             results[self.OUTPUT_HTML_FILE] = output_file
