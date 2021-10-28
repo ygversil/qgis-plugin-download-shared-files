@@ -76,7 +76,7 @@ HELP = help/build/html
 
 PLUGIN_UPLOAD = $(c)/plugin_upload.py
 
-RESOURCE_SRC=$(shell grep '^ *<file'  | sed 's@</file>@@g;s/.*>//g' | tr '\n' ' ')
+RESOURCE_SRC=$(shell grep '^ *<file' resources.qrc | sed 's@</file>@@g;s/.*>//g' | tr '\n' ' ')
 
 .PHONY: default
 default:
