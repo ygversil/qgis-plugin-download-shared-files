@@ -12,12 +12,12 @@
 <context>
     <name>DownloadSharedFilesAlgorithm</name>
     <message>
-        <location filename="../download_shared_files_algorithm.py" line="70"/>
+        <location filename="../download_shared_files_algorithm.py" line="71"/>
         <source>Input layer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../download_shared_files_algorithm.py" line="81"/>
+        <location filename="../download_shared_files_algorithm.py" line="82"/>
         <source>Output layer</source>
         <translation type="unfinished"></translation>
     </message>
@@ -25,7 +25,7 @@
 <context>
     <name>DownloadSharedFilesProvider</name>
     <message>
-        <location filename="../download_shared_files_provider.py" line="75"/>
+        <location filename="../download_shared_files_provider.py" line="76"/>
         <source>Download Shared Files</source>
         <translation type="unfinished"></translation>
     </message>
