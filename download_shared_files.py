@@ -85,8 +85,11 @@ class DownloadSharedFilesPlugin(object):
                     remote_version = 0
                 if local_version < remote_version:
                     log_message(
-                        'Files have been added or updated in this repository. '
-                        'Please run the Download Shared Files algorithm.',
+                        self.tr(
+                            'Files have been added or updated in this '
+                            'repository. Please run the Download Shared Files '
+                            'algorithm.'
+                        ),
                         title=repo_title,
                         level='Info',
                         message_bar=True,
@@ -102,6 +105,9 @@ class DownloadSharedFilesPlugin(object):
 
     def initGui(self):
         self.initProcessing()
+
+    def tr(self, message):
+        return QCoreApplication.translate('DownloadSharedFilesPlugin', message)
 
     def unload(self):
         QgsApplication.processingRegistry().removeProvider(self.provider)
