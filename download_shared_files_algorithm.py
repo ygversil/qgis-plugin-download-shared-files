@@ -270,9 +270,9 @@ class DownloadSharedFilesAlgorithm(QgisAlgorithm):
             ))
 
     def _downloadable_files(self):
-        """Download ``reffiles.yml`` from Ana repository and yield each file
+        """Download ``files.yml`` from Ana repository and yield each file
         description found there as a ``DownloadbleFile`` instance."""
-        with urlopen(urljoin(REPO_URL, 'reffiles2.yml')) as remote_f:
+        with urlopen(urljoin(REPO_URL, 'files.yml')) as remote_f:
             d = load_yaml(remote_f.read(), Loader=SafeLoader)
             self.version = int(d['version'])
             downloadable_files = d['files']

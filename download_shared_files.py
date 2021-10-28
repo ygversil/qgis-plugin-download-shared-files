@@ -75,7 +75,7 @@ class DownloadSharedFilesPlugin(object):
                 local_version = int(s.value('files_version', '0'))
                 repo_settings = read_repository_settings(repo_title)
                 try:
-                    with urlopen(urljoin(repo_settings.url, 'reffiles2.yml')) \
+                    with urlopen(urljoin(repo_settings.url, 'files.yml')) \
                             as remote_f:
                         remote_version = int(
                             load_yaml(remote_f.read(),
