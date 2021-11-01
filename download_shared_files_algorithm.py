@@ -256,7 +256,8 @@ class DownloadSharedFilesAlgorithm(QgisAlgorithm):
                     for downloaded_file in downloaded_files
                 ))
             )
-        tmpl_path = pathlib.Path(__file__).parent / 'download_report.html'
+        tmpl_path = (pathlib.Path(__file__).parent / 'report_templates'
+                     / 'download_report_en.html')
         output_path = pathlib.Path(output_html_path)
         with tmpl_path.open(encoding='utf-8') as tmpl, \
                 output_path.open('w', encoding='utf-8') as f:
