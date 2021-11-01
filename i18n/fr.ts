@@ -131,7 +131,7 @@ Après les téléchargements réussis, un rapport HTML est généré qui montre 
 <context>
     <name>DownloadSharedFilesPlugin</name>
     <message>
-        <location filename="../download_shared_files.py" line="87"/>
+        <location filename="../download_shared_files.py" line="89"/>
         <source>Files have been added or updated in this repository. Please run the Download Shared Files algorithm.</source>
         <translation>Des fichiers ont été ajoutés ou mis à jour dans ce dépôt. Veuillez exécuter l'algorithme Télécharger fichiers partagés.</translation>
     </message>
