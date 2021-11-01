@@ -72,7 +72,9 @@ class DownloadSharedFilesPlugin(object):
         # Check for repository updates
         with qgis_group_settings(SETTINGS_GROUP) as s:
             for repo_title in s.childGroups():
-                local_version = int(s.value('files_version', '0'))
+                local_version = int(
+                    s.value('{}/files_version'.format(repo_title))
+                )
                 repo_settings = read_repository_settings(repo_title)
                 try:
                     with urlopen(urljoin(repo_settings.url, 'files.yml')) \
