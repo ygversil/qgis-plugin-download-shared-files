@@ -34,7 +34,7 @@
     <message>
         <location filename="../download_shared_files_algorithm.py" line="148"/>
         <source>gis_data_home not found. You have to set gis_data_home global variable to the path of your main GIS folder (in Preferences -&gt; Settings dialog, Variables tab).</source>
-        <translation>La variable gis_data_home n'a pas été trouvée. Vous devez définir cette variable en indiquant le chemin vers votre dossier SIG principal (dans le menu Préférences -&amp;gt; Options, onglet Variables).</translation>
+        <translation>La variable gis_data_home n'a pas été trouvée. Vous devez définir cette variable en indiquant le chemin vers votre dossier SIG principal (dans le menu Préférences -&gt; Options, onglet Variables).</translation>
     </message>
     <message>
         <location filename="../download_shared_files_algorithm.py" line="167"/>
@@ -74,14 +74,14 @@
     <message>
         <location filename="../download_shared_files_algorithm.py" line="238"/>
         <source>&lt;p&gt;All files are up-to-date. No files downloaded&lt;/p&gt;</source>
-        <translation>&amp;lt;p&amp;gt;Tous les fichiers sont à jour. Aucun fichier téléchargé.&amp;lt;/p&amp;gt;</translation>
+        <translation>&lt;p&gt;Tous les fichiers sont à jour. Aucun fichier téléchargé.&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../download_shared_files_algorithm.py" line="241"/>
         <source>&lt;p&gt;{fname} (version: {version})&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Release notes&lt;/strong&gt;. {new}&lt;/p&gt;</source>
-        <translation>&amp;lt;p&amp;gt;{fname} (version : {version})&amp;lt;/p&amp;gt;
-&amp;lt;p&amp;gt;&amp;lt;strong&amp;gt;Notes de version&amp;lt;/strong&amp;gt;. {new}&amp;lt;/p&amp;gt;</translation>
+        <translation>&lt;p&gt;{fname} (version : {version})&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Notes de version&lt;/strong&gt;. {new}&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../download_shared_files_algorithm.py" line="263"/>
