@@ -22,7 +22,7 @@
         <translation>Outils fichiers</translation>
     </message>
     <message>
-        <location filename="../download_shared_files_algorithm.py" line="263"/>
+        <location filename="../download_shared_files_algorithm.py" line="264"/>
         <source>Download report</source>
         <translation>Rapport de téléchargement</translation>
     </message>
@@ -84,27 +84,27 @@
 &lt;p&gt;&lt;strong&gt;Notes de version&lt;/strong&gt;. {new}&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../download_shared_files_algorithm.py" line="263"/>
+        <location filename="../download_shared_files_algorithm.py" line="264"/>
         <source>Downloaded files</source>
         <translation>Fichiers téléchargés</translation>
     </message>
     <message>
-        <location filename="../download_shared_files_algorithm.py" line="293"/>
+        <location filename="../download_shared_files_algorithm.py" line="294"/>
         <source>Unable to read version file for {}. Download it again.</source>
         <translation>Impossible de lire la version du fichier {}. Nouveau téléchargement.</translation>
     </message>
     <message>
-        <location filename="../download_shared_files_algorithm.py" line="298"/>
+        <location filename="../download_shared_files_algorithm.py" line="299"/>
         <source>File {} up-to-date. Nothing to do.</source>
         <translation>Fichier {} à jour. Rien à faire.</translation>
     </message>
     <message>
-        <location filename="../download_shared_files_algorithm.py" line="318"/>
+        <location filename="../download_shared_files_algorithm.py" line="319"/>
         <source>dest_folder empty or not set for file {}.</source>
         <translation>Paramètre dest_folder vide ou non défini pour le fichier {}.</translation>
     </message>
     <message>
-        <location filename="../download_shared_files_algorithm.py" line="324"/>
+        <location filename="../download_shared_files_algorithm.py" line="325"/>
         <source>dest_folder cannot be an absolute path for {}.</source>
         <translation>Le paramètre dest_folder ne peut pas être un chemin absolu pour {}.</translation>
     </message>
