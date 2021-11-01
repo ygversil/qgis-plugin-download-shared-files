@@ -64,7 +64,6 @@ from .qgis_log import log_message
 BLOCKSIZE = 65536
 GISDATAHOME_PREFIX_RE = re.compile(r'^:gisdatahome:(\/)*')
 PROFILE_PREFIX_RE = re.compile(r'^:profile:(\/)*')
-REPO_URL = 'http://repo.priv.ariegenature.fr/ref/'
 
 
 DownloadableFile = namedtuple(
@@ -160,7 +159,7 @@ class DownloadSharedFilesAlgorithm(QgisAlgorithm):
                                                  context)
         files_to_download = [
             downloadable_file
-            for downloadable_file in self._downloadable_files()
+            for downloadable_file in self._downloadable_files(repo_url)
             if self._is_file_to_download(downloadable_file, feedback)
         ]
         step_count = len(files_to_download)
@@ -269,10 +268,10 @@ class DownloadSharedFilesAlgorithm(QgisAlgorithm):
                 content=tmpl_content
             ))
 
-    def _downloadable_files(self):
+    def _downloadable_files(self, repo_url):
         """Download ``files.yml`` from Ana repository and yield each file
         description found there as a ``DownloadbleFile`` instance."""
-        with urlopen(urljoin(REPO_URL, 'files.yml')) as remote_f:
+        with urlopen(urljoin(repo_url, 'files.yml')) as remote_f:
             d = load_yaml(remote_f.read(), Loader=SafeLoader)
             self.version = int(d['version'])
             downloadable_files = d['files']
